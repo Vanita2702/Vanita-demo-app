@@ -1,0 +1,30 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  buildConfiguration: 'Release'
+
+steps:
+
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '8.x'
+
+- script: dotnet restore MyWebApp/MyWebApp.csproj
+  displayName: 'Restore'
+
+- script: dotnet build MyWebApp/MyWebApp.csproj -c $(buildConfiguration)
+  displayName: 'Build'
+
+- script: dotnet publish MyWebApp/MyWebApp.csproj -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)
+  displayName: 'Publish'
+
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: '<3564fad2-d94b-4b25-a024-9a4ad1d70bc1>'
+    appName: '<vanita-demo-app>'
+    package: '$(Build.ArtifactStagingDirectory)'
